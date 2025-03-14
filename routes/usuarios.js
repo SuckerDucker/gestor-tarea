@@ -3,6 +3,40 @@ const connection = require("../config/database");
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Usuarios
+ *   description: Endpoints para la gestión de usuarios
+ */
+
+/**
+ * @swagger
+ * /usuarios:
+ *   post:
+ *     summary: Crea un nuevo usuario
+ *     tags: [Usuarios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Usuario registrado correctamente
+ *       400:
+ *         description: Error de validación o email existente
+ *       500:
+ *         description: Error al registrar usuario
+ */
 // Agregar un nuevo usuario
 router.post("/", (req, res) => {
   const { nombre, email, password } = req.body;
@@ -36,6 +70,18 @@ router.post("/", (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /usuarios:
+ *   get:
+ *     summary: Obtiene todos los usuarios (sin contraseñas)
+ *     tags: [Usuarios]
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios
+ *       500:
+ *         description: Error al obtener usuarios
+ */
 // Obtener todos los usuarios
 router.get("/", (req, res) => {
   const sql = "SELECT id, nombre, email FROM usuarios"; // No devolvemos contraseñas
@@ -49,6 +95,27 @@ router.get("/", (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /usuarios/{id}:
+ *   get:
+ *     summary: Obtiene la información de un usuario por ID
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del usuario
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Datos del usuario
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error al obtener el usuario
+ */
 // Obtener información de un usuario por ID
 router.get("/:id", (req, res) => {
   const { id } = req.params;
@@ -68,6 +135,40 @@ router.get("/:id", (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /usuarios/{id}:
+ *   put:
+ *     summary: Actualiza un usuario por su ID
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del usuario
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Usuario actualizado correctamente
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error al actualizar usuario
+ */
 // Editar datos de un usuario
 router.put("/:id", (req, res) => {
   const { nombre, email, password } = req.body;
@@ -88,7 +189,7 @@ router.put("/:id", (req, res) => {
     const sql = "UPDATE usuarios SET nombre = ?, email = ?, password = ? WHERE id = ?";
     const values = [nombre, email, password, id]; // En producción deberías encriptar la contraseña
 
-    connection.query(sql, values, (error, result) => {
+    connection.query(sql, values, (error) => {
       if (error) {
         console.error("Error al actualizar usuario:", error);
         return res.status(500).json({ error: "Error al actualizar usuario" });
@@ -98,6 +199,27 @@ router.put("/:id", (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /usuarios/{id}:
+ *   delete:
+ *     summary: Elimina un usuario por su ID
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del usuario a eliminar
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Usuario eliminado correctamente
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error al eliminar usuario
+ */
 // Eliminar un usuario
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
@@ -116,7 +238,7 @@ router.delete("/:id", (req, res) => {
     // Eliminar usuario
     const sql = "DELETE FROM usuarios WHERE id = ?";
     
-    connection.query(sql, [id], (error, result) => {
+    connection.query(sql, [id], (error) => {
       if (error) {
         console.error("Error al eliminar usuario:", error);
         return res.status(500).json({ error: "Error al eliminar usuario" });

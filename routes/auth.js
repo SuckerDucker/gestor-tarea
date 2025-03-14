@@ -5,6 +5,40 @@ const connection = require('../config/database');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Autenticación
+ *   description: Endpoints para registro, login y verificación de token
+ */
+
+/**
+ * @swagger
+ * /auth/registro:
+ *   post:
+ *     summary: Registra un nuevo usuario con datos encriptados
+ *     tags: [Autenticación]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Usuario registrado correctamente (retorna token)
+ *       400:
+ *         description: Error de validación
+ *       500:
+ *         description: Error en el servidor
+ */
 // Endpoint de registro
 router.post('/registro', async (req, res) => {
   const { nombre, email, password } = req.body;
@@ -61,6 +95,31 @@ router.post('/registro', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Inicia sesión de usuario y retorna un token JWT
+ *     tags: [Autenticación]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Inicio de sesión exitoso (retorna token)
+ *       400:
+ *         description: Credenciales inválidas
+ *       500:
+ *         description: Error en el servidor
+ */
 // Endpoint de login
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
@@ -112,6 +171,25 @@ router.post('/login', (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/verificar:
+ *   get:
+ *     summary: Verifica la validez del token JWT
+ *     tags: [Autenticación]
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         required: true
+ *         description: Token de autenticación en formato "Bearer <token>"
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Respuesta con la validez del token y datos del usuario
+ *       401:
+ *         description: Token no válido o no proporcionado
+ */
 // Endpoint para verificar token (útil para el cliente)
 router.get('/verificar', (req, res) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
